@@ -8,13 +8,14 @@ datasource db {
 
 }
 
-model Product {
-  id        Int      @id @default(autoincrement())
-  name      String
-  stock     Int
-  price     Decimal  @db.Decimal(10, 2)
-  imageUrl  String   @default("")
-  createdAt DateTime @default(now())
+model Producto {
+  id          Int      @id @default(autoincrement())
+  nombre      String
+  descripcion String?
+  precio      Float
+  stock       Int      @default(0)
+  creadoEn    DateTime @default(now())
+  actualizadoEn DateTime @updatedAt
 }
 
 model Purchase {
