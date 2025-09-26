@@ -1,10 +1,10 @@
 // src/compras/compras.service.ts
 import { Injectable } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { PrismaService} from '../prisma/prisma.service';
 
 @Injectable()
 export class ComprasService {
-  private prisma = new PrismaClient();
+  constructor(private prisma: PrismaService) {}
 
   async crearCompra(items: any[]) {
     return this.prisma.purchase.create({

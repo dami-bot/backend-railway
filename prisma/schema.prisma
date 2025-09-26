@@ -5,16 +5,15 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-
 }
 
 model Producto {
-  id          Int      @id @default(autoincrement())
-  nombre      String
-  descripcion String?
-  precio      Float
-  stock       Int      @default(0)
-  creadoEn    DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  nombre        String
+  descripcion   String?
+  precio        Float
+  stock         Int      @default(0)
+  creadoEn      DateTime @default(now())
   actualizadoEn DateTime @updatedAt
 }
 

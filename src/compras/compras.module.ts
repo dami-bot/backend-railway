@@ -3,7 +3,7 @@ import { ComprasController } from './compras.controller';
 import { ComprasService } from './compras.service';
 
 @Module({
-  imports: [],
+  
   controllers: [ComprasController],
   providers: [ComprasService],
 })
