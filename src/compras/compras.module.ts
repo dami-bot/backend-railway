@@ -1,4 +1,4 @@
-import { Module }  from "@nestjs/common";
+import { Module } from '@nestjs/common';
 import { ComprasController } from './compras.controller';
 import { ComprasService } from './compras.service';
 

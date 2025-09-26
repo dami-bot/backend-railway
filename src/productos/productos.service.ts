@@ -1,9 +1,9 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ProductosService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async findAll() {
     try {
@@ -16,7 +16,12 @@ export class ProductosService {
     }
   }
 
-  async create(data: { nombre: string; stock: number; precio: number; imageUrl?: string; }) {
+  async create(data: {
+    nombre: string;
+    stock: number;
+    precio: number;
+    imageUrl?: string;
+  }) {
     return this.prisma.producto.create({ data });
   }
 
@@ -29,12 +34,13 @@ export class ProductosService {
     if (!producto || producto.stock < cantidad) {
       throw new BadRequestException('Stock insuficiente');
     }
-    return this.prisma.producto.update({ where: { id }, data: { stock: producto.stock - cantidad } });
+    return this.prisma.producto.update({
+      where: { id },
+      data: { stock: producto.stock - cantidad },
+    });
   }
 
   async delete(id: number) {
     return this.prisma.producto.delete({ where: { id } });
   }
 }
-
-

@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Body,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
+} from '@nestjs/common';
 import { ProductosService } from './productos.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { v2 as cloudinary } from 'cloudinary';
@@ -53,14 +64,26 @@ export class ProductosController {
   }
 
   @Put(':id')
-  @UseInterceptors(FileInterceptor('image', {
-    fileFilter: (req, file, cb) => {
-      if (allowedTypes.includes(file.mimetype)) cb(null, true);
-      else cb(new BadRequestException('Solo se permiten imágenes JPG, PNG o WEBP.'), false);
-    },
-    limits: { fileSize: 2 * 1024 * 1024 },
-  }))
-  async update(@Param('id') id: string, @UploadedFile() file: Express.Multer.File, @Body() body: any) {
+  @UseInterceptors(
+    FileInterceptor('image', {
+      fileFilter: (req, file, cb) => {
+        if (allowedTypes.includes(file.mimetype)) cb(null, true);
+        else
+          cb(
+            new BadRequestException(
+              'Solo se permiten imágenes JPG, PNG o WEBP.',
+            ),
+            false,
+          );
+      },
+      limits: { fileSize: 2 * 1024 * 1024 },
+    }),
+  )
+  async update(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: any,
+  ) {
     const updateData: any = {
       nombre: body.nombre,
       stock: Number(body.stock),
@@ -90,7 +113,10 @@ export class ProductosController {
   }
 
   @Post(':id/restar-stock')
-  async restarStock(@Param('id') id: string, @Body('cantidad') cantidad: number) {
+  async restarStock(
+    @Param('id') id: string,
+    @Body('cantidad') cantidad: number,
+  ) {
     return this.productosService.restarStock(Number(id), cantidad);
   }
 
@@ -99,4 +125,3 @@ export class ProductosController {
     return this.productosService.delete(Number(id));
   }
 }
-

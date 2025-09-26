@@ -1,4 +1,4 @@
- // src/compras/compras.controller.ts
+// src/compras/compras.controller.ts
 import { Controller, Get, Post, Body, Delete } from '@nestjs/common';
 import { ComprasService } from './compras.service';
 
