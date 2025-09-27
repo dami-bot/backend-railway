@@ -1,16 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import {join} from 'path';
+ 
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: ['error', 'warn', 'log'],
   });
 
-  app.enableCors({
-    origin: '*', // para pruebas
-  });
+ 
 
   const allowedOrigins = ['http://localhost:3000', process.env.FRONTEND_URL];
   // 🌍 Configuración de CORS

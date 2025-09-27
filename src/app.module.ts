@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ComprasModule } from './compras/compras.module';
 import { ProductosModule } from './productos/productos.module';
-import { PrismaService } from './prisma/prisma.service';
 
 @Module({
   imports: [
@@ -9,6 +8,6 @@ import { PrismaService } from './prisma/prisma.service';
     ComprasModule,
     ProductosModule,
   ],
-  providers: [PrismaService], // Prisma disponible para todos los servicios
+  // Prisma disponible para todos los servicios
 })
 export class AppModule {}

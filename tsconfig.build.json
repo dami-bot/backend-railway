@@ -1,16 +1,18 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+   "module": "CommonJS",
+    "target": "ES2023",
     "outDir": "./dist",
-    "rootDir": "./src"
-    
+    "rootDir": "./src",
+    "esModuleInterop": true,
+    "moduleResolution": "node"
   },
   "include": [
     "src/**/*"
   ],
   "exclude": [
     "node_modules",
-    "test",
     "dist"
   ]
 }
