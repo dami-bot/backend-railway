@@ -13,6 +13,7 @@ model Producto {
   descripcion   String?
   precio        Float
   stock         Int      @default(0)
+  imagenUrl      String? 
   creadoEn      DateTime @default(now())
   actualizadoEn DateTime @updatedAt
 }
