@@ -16,14 +16,26 @@ export class ProductosService {
     }
   }
 
-  async create(data: {
-    nombre: string;
-    stock: number;
-    precio: number;
-    imageUrl?: string;
-  }) {
-    return this.prisma.producto.create({ data });
+async create(data: {
+  nombre: string;
+  descripcion?: string;
+  stock: number;
+  precio: number;
+}) {
+  // Validación básica
+  if (!data.nombre || isNaN(data.precio) || isNaN(data.stock)) {
+    throw new BadRequestException('Datos inválidos para crear producto');
   }
+
+  return this.prisma.producto.create({
+    data: {
+      nombre: data.nombre,
+      descripcion: data.descripcion || '',
+      precio: data.precio,
+      stock: data.stock,
+    },
+  });
+}
 
   async update(id: number, data: any) {
     return this.prisma.producto.update({ where: { id }, data });

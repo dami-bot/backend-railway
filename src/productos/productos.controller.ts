@@ -1,127 +1,68 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Param,
-  Body,
-  UseInterceptors,
-  UploadedFile,
-  BadRequestException,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, BadRequestException } from '@nestjs/common';
 import { ProductosService } from './productos.service';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { v2 as cloudinary } from 'cloudinary';
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
-const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-
-@Controller('api/productos')
+@Controller('productos')
 export class ProductosController {
   constructor(private readonly productosService: ProductosService) {}
 
+  // GET /productos → devuelve todos los productos
   @Get()
   async findAll() {
     return this.productosService.findAll();
   }
 
+  // POST /productos → crea un producto nuevo
   @Post()
-  @UseInterceptors(FileInterceptor('image'))
-  async create(@UploadedFile() file: Express.Multer.File, @Body() body: any) {
-    let imageUrl = '';
+  async create(
+    @Body() body: { nombre: string; descripcion?: string; precio: number; stock: number }
+  ) {
+    const { nombre, descripcion, precio, stock } = body;
 
-    if (file) {
-      try {
-        const result: any = await new Promise((resolve, reject) => {
-          const uploadStream = cloudinary.uploader.upload_stream(
-            { folder: 'productos' },
-            (error, result) => {
-              if (error) return reject(error);
-              resolve(result);
-            },
-          );
-          uploadStream.end(file.buffer);
-        });
-        imageUrl = result.secure_url;
-      } catch (err) {
-        console.error('Error subiendo imagen a Cloudinary:', err);
-        throw new BadRequestException('No se pudo subir la imagen');
-      }
+    // Validación básica
+    if (!nombre || isNaN(precio) || isNaN(stock)) {
+      throw new BadRequestException('Datos inválidos para crear producto');
     }
 
     return this.productosService.create({
-      nombre: body.nombre,
-      stock: Number(body.stock),
-      precio: Number(body.precio),
-      imageUrl,
+      nombre,
+      descripcion,
+      precio: Number(precio),
+      stock: Number(stock),
     });
   }
 
+  // PUT /productos/:id → actualiza un producto existente
   @Put(':id')
-  @UseInterceptors(
-    FileInterceptor('image', {
-      fileFilter: (req, file, cb) => {
-        if (allowedTypes.includes(file.mimetype)) cb(null, true);
-        else
-          cb(
-            new BadRequestException(
-              'Solo se permiten imágenes JPG, PNG o WEBP.',
-            ),
-            false,
-          );
-      },
-      limits: { fileSize: 2 * 1024 * 1024 },
-    }),
-  )
   async update(
     @Param('id') id: string,
-    @UploadedFile() file: Express.Multer.File,
-    @Body() body: any,
+    @Body() body: { nombre?: string; descripcion?: string; precio?: number; stock?: number }
   ) {
-    const updateData: any = {
-      nombre: body.nombre,
-      stock: Number(body.stock),
-      precio: Number(body.precio),
-    };
+    const data: any = {};
+    if (body.nombre) data.nombre = body.nombre;
+    if (body.descripcion) data.descripcion = body.descripcion;
+    if (body.precio !== undefined) data.precio = Number(body.precio);
+    if (body.stock !== undefined) data.stock = Number(body.stock);
 
-    if (file) {
-      try {
-        const result: any = await new Promise((resolve, reject) => {
-          const uploadStream = cloudinary.uploader.upload_stream(
-            { folder: 'productos' },
-            (error, result) => {
-              if (error) return reject(error);
-              resolve(result);
-            },
-          );
-          uploadStream.end(file.buffer);
-        });
-        updateData.imageUrl = result.secure_url;
-      } catch (err) {
-        console.error('Error subiendo imagen a Cloudinary:', err);
-        throw new BadRequestException('No se pudo subir la imagen');
-      }
-    }
-
-    return this.productosService.update(Number(id), updateData);
+    return this.productosService.update(Number(id), data);
   }
 
+  // DELETE /productos/:id → elimina un producto
+  @Delete(':id')
+  async delete(@Param('id') id: string) {
+    return this.productosService.delete(Number(id));
+  }
+
+  // POST /productos/:id/restar-stock → restar stock
   @Post(':id/restar-stock')
   async restarStock(
     @Param('id') id: string,
-    @Body('cantidad') cantidad: number,
+    @Body() body: { cantidad: number }
   ) {
+    const cantidad = Number(body.cantidad);
+    if (isNaN(cantidad) || cantidad <= 0) {
+      throw new BadRequestException('Cantidad inválida');
+    }
     return this.productosService.restarStock(Number(id), cantidad);
   }
-
-  @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.productosService.delete(Number(id));
-  }
 }
+
