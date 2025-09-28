@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Param, Put, Delete, BadRequestException } from '@nestjs/common';
 import { ProductosService } from './productos.service';
 
-@Controller('api/productos')
+@Controller('admin/productos')
 export class ProductosController {
   constructor(private readonly productosService: ProductosService) {}
 
