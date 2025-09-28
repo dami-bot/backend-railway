@@ -17,8 +17,10 @@ async function bootstrap() {
 
   console.log('✅ FRONTEND_URL actual:', process.env.FRONTEND_URL);
   console.log('✅ Allowed origins:', allowedOrigins);
+  app.enableCors({ origin: '*', credentials: true });
 
-  app.enableCors({
+ /*  app.enableCors({
+    
     origin: (origin, callback) => {
        console.log('🔎 Origin recibido:', origin);
       if (!origin || allowedOrigins.includes(origin)) {
@@ -31,7 +33,7 @@ async function bootstrap() {
     credentials: true,
     methods: ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-  });
+  }); */
 
   // 🚀 Puerto dinámico en Railway (o 3000 en local)
   const port = process.env.PORT || 8080;
