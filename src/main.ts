@@ -12,8 +12,11 @@ async function bootstrap() {
 
   const allowedOrigins = [
     'http://localhost:3000',
-     process.env.FRONTEND_URL];
+     process.env.FRONTEND_URL || 'https://sistema-de-inventario-2q5p32y8w-dami-bots-projects.vercel.app'];
   // 🌍 Configuración de CORS
+
+  console.log('✅ FRONTEND_URL actual:', process.env.FRONTEND_URL);
+  console.log('✅ Allowed origins:', allowedOrigins);
 
   app.enableCors({
     origin: (origin, callback) => {
@@ -31,7 +34,7 @@ async function bootstrap() {
   });
 
   // 🚀 Puerto dinámico en Railway (o 3000 en local)
-  const port = process.env.PORT || 3000;
+  const port = process.env.PORT || 8080;
   await app.listen(port, '0.0.0.0');
   console.log(`🚀 Servidor corriendo en puerto ${port}`);
 }
