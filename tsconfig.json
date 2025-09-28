@@ -9,14 +9,15 @@
     "target": "ES2023",
     "sourceMap": true,
     "rootDir": "./src",
-    "outDir": "./dist", // ✅ MUY IMPORTANTE
+    "outDir": "./dist", 
     "baseUrl": "/",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
-    "forceConsistentCasingInFileNames": true,
+    "forceConsistentCasingInFileNames": true
   },
   "include": [
-    "src/**/*"
-  ] // ✅ AGREGA ESTO
+    "src/**/*",
+    "src/seed.ts"
+  ]
 }
