@@ -1,30 +1,42 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+  BadRequestException,
+  UseInterceptors,
+  UploadedFile,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ProductosService } from './productos.service';
 
 @Controller('api/productos')
 export class ProductosController {
   constructor(private readonly productosService: ProductosService) {}
 
-  // GET /api/productos → devuelve todos los productos
   @Get()
   async findAll() {
     return this.productosService.findAll();
   }
 
-  // POST /api/productos → crea un producto nuevo
+  // ✅ Ahora recibimos un archivo en lugar de imagenUrl por JSON
   @Post()
+  @UseInterceptors(FileInterceptor('imagen'))
   async create(
     @Body() body: { 
       nombre: string; 
       descripcion?: string; 
       precio: number; 
       stock: number; 
-      imagenUrl?: string; // URL o Base64 de la imagen
-    }
+    },
+    @UploadedFile() file?: Express.Multer.File
   ) {
-    const { nombre, descripcion, precio, stock, imagenUrl } = body;
+    const { nombre, descripcion, precio, stock } = body;
 
-    if (!nombre || isNaN(precio) || isNaN(stock)) {
+    if (!nombre || isNaN(Number(precio)) || isNaN(Number(stock))) {
       throw new BadRequestException('Datos inválidos para crear producto');
     }
 
@@ -33,12 +45,11 @@ export class ProductosController {
       descripcion,
       precio: Number(precio),
       stock: Number(stock),
-      imagenUrl, // se pasa al servicio para subir a Cloudinary
-    });
+    }, file);
   }
 
-  // PUT /api/productos/:id → actualiza un producto existente
   @Put(':id')
+  @UseInterceptors(FileInterceptor('imagen'))
   async update(
     @Param('id') id: string,
     @Body() body: { 
@@ -46,26 +57,17 @@ export class ProductosController {
       descripcion?: string; 
       precio?: number; 
       stock?: number; 
-      imagenUrl?: string; 
-    }
+    },
+    @UploadedFile() file?: Express.Multer.File
   ) {
-    const data: any = {};
-    if (body.nombre) data.nombre = body.nombre;
-    if (body.descripcion) data.descripcion = body.descripcion;
-    if (body.precio !== undefined) data.precio = Number(body.precio);
-    if (body.stock !== undefined) data.stock = Number(body.stock);
-    if (body.imagenUrl) data.imagenUrl = body.imagenUrl;
-
-    return this.productosService.update(Number(id), data);
+    return this.productosService.update(Number(id), body, file);
   }
 
-  // DELETE /api/productos/:id → elimina un producto
   @Delete(':id')
   async delete(@Param('id') id: string) {
     return this.productosService.delete(Number(id));
   }
 
-  // POST /api/productos/:id/restar-stock → restar stock
   @Post(':id/restar-stock')
   async restarStock(
     @Param('id') id: string,
