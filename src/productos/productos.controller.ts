@@ -9,6 +9,7 @@ import {
   BadRequestException,
   UseInterceptors,
   UploadedFile,
+  Patch,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ProductosService } from './productos.service';
@@ -48,7 +49,7 @@ export class ProductosController {
     }, file);
   }
 
-  @Put(':id')
+  @Patch(':id')
   @UseInterceptors(FileInterceptor('imagen'))
   async update(
     @Param('id') id: string,
