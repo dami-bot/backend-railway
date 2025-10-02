@@ -49,7 +49,7 @@ export class ProductosController {
     }, file);
   }
 
-  @Patch(':id')
+  @Put(':id')
   @UseInterceptors(FileInterceptor('imagen'))
   async update(
     @Param('id') id: string,
