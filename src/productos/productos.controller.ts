@@ -16,7 +16,7 @@ import { ProductosService } from './productos.service';
 
 @Controller('api/productos')
 export class ProductosController {
-  constructor(private readonly productosService: ProductosService) {}
+  constructor(private readonly productosService: ProductosService) { }
 
   @Get()
   async findAll() {
@@ -24,43 +24,39 @@ export class ProductosController {
   }
 
   // ✅ Ahora recibimos un archivo en lugar de imagenUrl por JSON
-  @Post()
-  @UseInterceptors(FileInterceptor('imagen'))
-  async create(
-    @Body() body: { 
-      nombre: string; 
-      descripcion?: string; 
-      precio: number; 
-      stock: number; 
-    },
-    @UploadedFile() file?: Express.Multer.File
-  ) {
-    const { nombre, descripcion, precio, stock } = body;
+ @Post()
+@UseInterceptors(FileInterceptor('imagen'))
+async create(
+  @Body() body: any,
+  @UploadedFile() file?: Express.Multer.File
+) {
+  delete body.imagen; // 👈 extra seguro
 
-    if (!nombre || isNaN(Number(precio)) || isNaN(Number(stock))) {
-      throw new BadRequestException('Datos inválidos para crear producto');
-    }
+  const { nombre, descripcion, precio, stock } = body;
 
-    return this.productosService.create({
+  if (!nombre || isNaN(Number(precio)) || isNaN(Number(stock))) {
+    throw new BadRequestException('Datos inválidos para crear producto');
+  }
+
+  return this.productosService.create(
+    {
       nombre,
       descripcion,
       precio: Number(precio),
       stock: Number(stock),
-    }, file);
-  }
+    },
+    file,
+  );
+}
 
   @Put(':id')
   @UseInterceptors(FileInterceptor('imagen'))
   async update(
     @Param('id') id: string,
-    @Body() body: { 
-      nombre?: string; 
-      descripcion?: string; 
-      precio?: number; 
-      stock?: number; 
-    },
+    @Body() body: any,
     @UploadedFile() file?: Express.Multer.File
   ) {
+    delete body.imagen;
     return this.productosService.update(Number(id), body, file);
   }
 
