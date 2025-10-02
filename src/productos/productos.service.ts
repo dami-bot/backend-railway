@@ -91,6 +91,15 @@ async update(
     }
   }
 
+  // ✅ Convertir tipos antes de actualizar
+  if (data.precio !== undefined) {
+    data.precio = Number(data.precio);
+  }
+  if (data.stock !== undefined) {
+    data.stock = Number(data.stock);
+  }
+
+
   // ✅ Actualizamos el producto en la base de datos
   return this.prisma.producto.update({
     where: { id },
