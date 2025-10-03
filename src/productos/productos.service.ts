@@ -10,7 +10,7 @@ cloudinary.config({
 
 @Injectable()
 export class ProductosService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async findAll() {
     try {
@@ -24,91 +24,91 @@ export class ProductosService {
   }
 
   async create(
-  data: { nombre: string; descripcion?: string; stock: number; precio: number },
-  file?: Express.Multer.File,
-) {
-  let uploadedImageUrl: string | null = null;
+    data: { nombre: string; descripcion?: string; stock: number; precio: number },
+    file?: Express.Multer.File,
+  ) {
+    let uploadedImageUrl: string | null = null;
 
-  if (file) {
-    try {
-      const result = await new Promise<any>((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: 'productos' },
-          (error, result) => {
-            if (error) return reject(error);
-            resolve(result);
-          },
-        );
-        stream.end(file.buffer); // 👈 subimos desde buffer
-      });
+    if (file) {
+      try {
+        const result = await new Promise<any>((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: 'productos' },
+            (error, result) => {
+              if (error) return reject(error);
+              resolve(result);
+            },
+          );
+          stream.end(file.buffer); // 👈 subimos desde buffer
+        });
 
-      uploadedImageUrl = result.secure_url;
-    } catch (err) {
-      console.error('❌ Error subiendo imagen a Cloudinary:', err);
-      throw new BadRequestException('No se pudo subir la imagen');
+        uploadedImageUrl = result.secure_url;
+      } catch (err) {
+        console.error('❌ Error subiendo imagen a Cloudinary:', err);
+        throw new BadRequestException('No se pudo subir la imagen');
+      }
     }
+
+    return this.prisma.producto.create({
+      data: {
+        ...data,
+        imagenUrl: uploadedImageUrl,
+      },
+    });
   }
 
-  return this.prisma.producto.create({
-    data: {
-      ...data,
-      imagenUrl: uploadedImageUrl,
-    },
-  });
-}
 
+  async update(
+    id: number,
+    data: Partial<{
+      nombre: string;
+      descripcion: string;
+      precio: number;
+      stock: number;
+    }>,
+    file?: Express.Multer.File, // 👈 agregamos este parámetro opcional
+  ) {
+    let uploadedImageUrl: string | undefined = undefined;
 
-async update(
-  id: number,
-  data: Partial<{
-    nombre: string;
-    descripcion: string;
-    precio: number;
-    stock: number;
-  }>,
-  file?: Express.Multer.File, // 👈 agregamos este parámetro opcional
-) {
-  let uploadedImageUrl: string | undefined = undefined;
+    // ✅ Si se subió una nueva imagen, la subimos a Cloudinary
+    if (file) {
+      try {
+        const result = await new Promise<any>((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: 'productos' },
+            (error, result) => {
+              if (error) return reject(error);
+              resolve(result);
+            }
+          );
+          stream.end(file.buffer);
+        });
 
-  // ✅ Si se subió una nueva imagen, la subimos a Cloudinary
-  if (file) {
-    try {
-      const result = await new Promise<any>((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: 'productos' },
-          (error, result) => {
-            if (error) return reject(error);
-            resolve(result);
-          }
-        );
-        stream.end(file.buffer);
-      });
-
-      uploadedImageUrl = result.secure_url;
-    } catch (err) {
-      console.error('❌ Error subiendo imagen a Cloudinary:', err);
-      throw new BadRequestException('No se pudo subir la imagen');
+        uploadedImageUrl = result.secure_url;
+      } catch (err) {
+        console.error('❌ Error subiendo imagen a Cloudinary:', err);
+        throw new BadRequestException('No se pudo subir la imagen');
+      }
     }
-  }
 
-  // ✅ Convertir tipos antes de actualizar
-  if (data.precio !== undefined) {
-    data.precio = Number(data.precio);
-  }
-  if (data.stock !== undefined) {
-    data.stock = Number(data.stock);
-  }
+    // ✅ Convertir tipos antes de actualizar
+    if (data.precio !== undefined) {
+      data.precio = Number(data.precio);
+    }
+    if (data.stock !== undefined) {
+      data.stock = Number(data.stock);
+    }
 
 
-  // ✅ Actualizamos el producto en la base de datos
-  return this.prisma.producto.update({
-    where: { id },
-    data: {
-      ...data,
-      ...(uploadedImageUrl ? { imagenUrl: uploadedImageUrl } : {}),
-    },
-  });
-}
+    // ✅ Actualizamos el producto en la base de datos
+    return this.prisma.producto.update({
+      where: { id },
+      data: {
+        ...data,
+        ...(uploadedImageUrl ? { imagenUrl: uploadedImageUrl } : {}),
+      },
+    });
+  }
 
   async delete(id: number) {
     return this.prisma.producto.delete({ where: { id } });
