@@ -12,7 +12,7 @@ async function bootstrap() {
 
   const allowedOrigins = [
     'http://localhost:3000',
-     process.env.FRONTEND_URL || 'https://sistema-de-inventario-2q5p32y8w-dami-bots-projects.vercel.app'];
+     process.env.FRONTEND_URL || 'https://sistema-de-inventario-qb65rve37-dami-bots-projects.vercel.app'];
   // 🌍 Configuración de CORS
 
   console.log('✅ FRONTEND_URL actual:', process.env.FRONTEND_URL);
