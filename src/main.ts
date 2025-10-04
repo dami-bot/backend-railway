@@ -12,23 +12,30 @@ async function bootstrap() {
     const allowedOrigins = [
       'http://localhost:3000',
       process.env.FRONTEND_URL || 'https://sistema-de-inventario-qb65rve37-dami-bots-projects.vercel.app',
+      'https://sistema-de-inventario-ccb7dyyxp-dami-bots-projects.vercel.app',
+      'https://sistema-de-inventario-three.vercel.app/ '
     ];
 
     console.log('✅ FRONTEND_URL:', process.env.FRONTEND_URL);
     console.log('✅ Allowed origins:', allowedOrigins);
-
     app.enableCors({
-      origin: (origin, callback) => {
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          console.error('❌ CORS bloqueado para origen:', origin);
-          callback(new Error('CORS no permitido'));
-        }
-      },
+      origin: true, // 👈 acepta cualquier origen (solo para test)
       credentials: true,
     });
+
+    /* 
+        app.enableCors({
+          origin: (origin, callback) => {
+            if (!origin) return callback(null, true);
+            if (allowedOrigins.includes(origin)) {
+              callback(null, true);
+            } else {
+              console.error('❌ CORS bloqueado para origen:', origin);
+              callback(new Error('CORS no permitido'));
+            }
+          },
+          credentials: true,
+        }); */
 
     const port = process.env.PORT || 8080;
     console.log(`🚀 Intentando iniciar en puerto ${port}...`);
