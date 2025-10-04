@@ -11,7 +11,7 @@ async function bootstrap() {
 
     const allowedOrigins = [
       'http://localhost:3000',
-      process.env.FRONTEND_URL || 'https://sistema-de-inventario-qb65rve37-dami-bots-projects.vercel.app',
+      process.env.FRONTEND_URL || 'https://sistema-de-inventario-kwdlo2rak-dami-bots-projects.vercel.app/',
       'https://sistema-de-inventario-ccb7dyyxp-dami-bots-projects.vercel.app',
       'https://sistema-de-inventario-three.vercel.app/ '
     ];
