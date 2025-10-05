@@ -16,6 +16,8 @@ model Producto {
   imagenUrl      String? 
   creadoEn      DateTime @default(now())
   actualizadoEn DateTime @updatedAt
+  ofertaDiaria Boolean    @default(false)
+  vencimiento  DateTime?  // nullable
 }
 
 model Purchase {

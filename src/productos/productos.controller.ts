@@ -24,41 +24,50 @@ export class ProductosController {
   }
 
   // ✅ Ahora recibimos un archivo en lugar de imagenUrl por JSON
- @Post()
-@UseInterceptors(FileInterceptor('imagen'))
-async create(
-  @Body() body: any,
-  @UploadedFile() file?: Express.Multer.File
-) {
-  delete body.imagen; // 👈 extra seguro
-
-  const { nombre, descripcion, precio, stock } = body;
-
-  if (!nombre || isNaN(Number(precio)) || isNaN(Number(stock))) {
-    throw new BadRequestException('Datos inválidos para crear producto');
-  }
-
-  return this.productosService.create(
-    {
-      nombre,
-      descripcion,
-      precio: Number(precio),
-      stock: Number(stock),
-    },
-    file,
-  );
-}
-
-  @Put(':id')
+  @Post()
   @UseInterceptors(FileInterceptor('imagen'))
-  async update(
-    @Param('id') id: string,
+  async create(
     @Body() body: any,
     @UploadedFile() file?: Express.Multer.File
   ) {
-    delete body.imagen;
-    return this.productosService.update(Number(id), body, file);
+    delete body.imagen; // 👈 extra seguro
+
+    const { nombre, descripcion, precio, stock, ofertaDiaria, vencimiento } = body;
+
+    if (!nombre || isNaN(Number(precio)) || isNaN(Number(stock))) {
+      throw new BadRequestException('Datos inválidos para crear producto');
+    }
+
+    return this.productosService.create(
+      {
+        nombre,
+        descripcion,
+        precio: Number(precio),
+        stock: Number(stock),
+        ofertaDiaria: !!ofertaDiaria, // 📌 booleano
+        vencimiento: vencimiento ? new Date(vencimiento) : null, // 📌 fecha
+      },
+      file,
+    );
   }
+
+@Put(':id')
+async update(
+  @Param('id') id: string,
+  @Body() body: any
+) {
+  const { nombre, descripcion, stock, precio, imagenUrl, ofertaDiaria, vencimiento } = body;
+
+  return this.productosService.update(Number(id), {
+    nombre,
+    descripcion,
+    stock: stock !== undefined ? Number(stock) : undefined,
+    precio: precio !== undefined ? Number(precio) : undefined,
+    ofertaDiaria: ofertaDiaria !== undefined ? !!ofertaDiaria : undefined,
+    vencimiento: vencimiento ? new Date(vencimiento) : undefined,
+  });
+}
+
 
   @Delete(':id')
   async delete(@Param('id') id: string) {

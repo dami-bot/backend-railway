@@ -24,7 +24,7 @@ export class ProductosService {
   }
 
   async create(
-    data: { nombre: string; descripcion?: string; stock: number; precio: number },
+    data: { nombre: string; descripcion?: string; stock: number; precio: number; ofertaDiaria?: boolean, vencimiento?: Date | null;},
     file?: Express.Multer.File,
   ) {
     let uploadedImageUrl: string | null = null;
@@ -65,6 +65,8 @@ export class ProductosService {
       descripcion: string;
       precio: number;
       stock: number;
+      ofertaDiaria: boolean;
+      vencimiento: Date | null;
     }>,
     file?: Express.Multer.File, // 👈 agregamos este parámetro opcional
   ) {
