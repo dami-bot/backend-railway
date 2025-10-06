@@ -24,7 +24,7 @@ export class ProductosService {
   }
 
   async create(
-    data: { nombre: string; descripcion?: string; stock: number; precio: number; ofertaDiaria?: boolean, vencimiento?: Date | null;},
+    data: { nombre: string; descripcion?: string; stock: number; precio: number; ofertaDiaria?: boolean, vencimiento?: Date | null; },
     file?: Express.Multer.File,
   ) {
     let uploadedImageUrl: string | null = null;
@@ -66,7 +66,7 @@ export class ProductosService {
       precio: number;
       stock: number;
       ofertaDiaria: boolean;
-      vencimiento: Date | null;
+      vencimiento: string | Date | null;
     }>,
     file?: Express.Multer.File, // 👈 agregamos este parámetro opcional
   ) {
@@ -91,6 +91,9 @@ export class ProductosService {
         console.error('❌ Error subiendo imagen a Cloudinary:', err);
         throw new BadRequestException('No se pudo subir la imagen');
       }
+    }
+    if (data.vencimiento !== undefined) {
+      data.vencimiento = data.vencimiento ? new Date(data.vencimiento) : null;
     }
 
     // ✅ Convertir tipos antes de actualizar
