@@ -80,6 +80,41 @@ async create(
     throw new InternalServerErrorException('No se pudo crear el producto');
   }
 }
+// Actualizar precios por porcentaje
+@Post('actualizar-precios')
+async actualizarPrecios(
+  @Body() body: { ids: number[]; porcentaje: number }
+) {
+  const { ids, porcentaje } = body;
+
+  if (!ids || !Array.isArray(ids) || ids.length === 0) {
+    throw new BadRequestException('Debe seleccionar al menos un producto');
+  }
+  if (isNaN(porcentaje)) {
+    throw new BadRequestException('Porcentaje inválido');
+  }
+
+  try {
+    const updates = await Promise.all(
+      ids.map(async (id) => {
+        // 🔹 Obtenemos el producto directamente desde Prisma
+        const producto = await this.productosService.findById(id);
+        if (!producto) return null;
+
+        const nuevoPrecio = producto.precio * (1 + porcentaje / 100);
+
+        return this.productosService.update(id, { precio: Number(nuevoPrecio.toFixed(2)) });
+      })
+    );
+
+    return updates.filter(u => u !== null);
+  } catch (err) {
+    console.error(err);
+    throw new InternalServerErrorException('No se pudieron actualizar los precios');
+  }
+}
+
+
 
   // ACTUALIZAR PRODUCTO
   @Put(':id')

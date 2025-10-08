@@ -22,6 +22,12 @@ export class ProductosService {
       throw new BadRequestException('Error al obtener productos');
     }
   }
+    // ✅ Nuevo método para obtener un producto por ID
+  async findById(id: number) {
+    return this.prisma.producto.findUnique({ where: { id } });
+  }
+
+ 
 
   async create(
     data: { nombre: string; descripcion?: string; stock: number; precio: number; ofertaDiaria?: boolean, vencimiento?: Date | null; },
