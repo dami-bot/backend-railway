@@ -12,22 +12,29 @@ cloudinary.config({
 export class ProductosService {
   constructor(private prisma: PrismaService) { }
 
-  async findAll() {
+  async findAll({ skip = 0, take = 20 }: { skip?: number; take?: number }) {
     try {
-      const productos = await this.prisma.producto.findMany();
-      console.log('Productos encontrados:', productos);
+      const productos = await this.prisma.producto.findMany({
+        skip,
+        take,
+        orderBy: { id: 'desc' },
+      });
+
+      console.log(`📦 Productos encontrados (${productos.length}):`, productos);
       return productos;
     } catch (error) {
       console.error('❌ Error en findAll():', error.message);
       throw new BadRequestException('Error al obtener productos');
     }
   }
-    // ✅ Nuevo método para obtener un producto por ID
+
+  // ✅ Obtener un producto por ID (queda igual)
   async findById(id: number) {
     return this.prisma.producto.findUnique({ where: { id } });
   }
 
- 
+
+
 
   async create(
     data: { nombre: string; descripcion?: string; stock: number; precio: number; ofertaDiaria?: boolean, vencimiento?: Date | null; },

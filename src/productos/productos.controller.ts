@@ -11,6 +11,7 @@ import {
   UploadedFile,
   InternalServerErrorException,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ProductosService } from './productos.service';
@@ -28,9 +29,16 @@ export class ProductosController {
   constructor(private readonly productosService: ProductosService) { }
 
   @Get()
-  async findAll() {
-    return this.productosService.findAll();
+  async findAll(
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '20',
+  ) {
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const take = parseInt(limit);
+
+    return this.productosService.findAll({ skip, take });
   }
+
 
  // CREAR PRODUCTO
 @Post()
