@@ -21,9 +21,11 @@ model Producto {
 }
 model Purchase {
   id            Int      @id @default(autoincrement())
-  date          DateTime @default(now())
+  numeroPedido  Int
+  cliente       String
+  direccion     String
+  total         Float
   items         Json
-  cliente       String?   // 👈 nuevo campo opcional
-  numeroPedido  String?   // 👈 nuevo campo opcional
+  date          DateTime @default(now())
 }
 

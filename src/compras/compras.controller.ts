@@ -5,12 +5,11 @@ import { ComprasService } from './compras.service';
 @Controller('compras')
 export class ComprasController {
   constructor(private readonly comprasService: ComprasService) {}
+@Post()
+async crearCompra(@Body() data: any) {
+  return this.comprasService.crearCompra(data);
+}
 
-  @Post()
-  async crearCompra(@Body() body: any) {
-    const { items, cliente, numeroPedido } = body;
-    return this.comprasService.crearCompra(items, cliente, numeroPedido);
-  }
 
   @Get()
   async obtenerHistorial() {

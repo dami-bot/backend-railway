@@ -6,15 +6,18 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ComprasService {
   constructor(private prisma: PrismaService) {}
 
-  async crearCompra(items: any[], cliente?: string, numeroPedido?: string) {
-    return this.prisma.purchase.create({
-      data: {
-        items,
-        cliente,
-        numeroPedido,
-      },
-    });
-  }
+  async crearCompra(data: any) {
+  return this.prisma.purchase.create({
+    data: {
+      numeroPedido: data.numeroPedido,
+      cliente: data.cliente,
+      direccion: data.direccion,
+      total: data.total,
+      items: data.items,
+    },
+  });
+}
+
 
   async obtenerHistorial() {
     return this.prisma.purchase.findMany({
