@@ -1,14 +1,15 @@
 // src/compras/compras.controller.ts
-import { Controller, Get, Post, Body, Delete } from '@nestjs/common';
+import { Controller, Post, Get, Body, Delete } from '@nestjs/common';
 import { ComprasService } from './compras.service';
 
-@Controller('api/compras')
+@Controller('compras')
 export class ComprasController {
   constructor(private readonly comprasService: ComprasService) {}
 
   @Post()
-  async crearCompra(@Body('items') items: any) {
-    return this.comprasService.crearCompra(items);
+  async crearCompra(@Body() body: any) {
+    const { items, cliente, numeroPedido } = body;
+    return this.comprasService.crearCompra(items, cliente, numeroPedido);
   }
 
   @Get()
@@ -21,3 +22,4 @@ export class ComprasController {
     return this.comprasService.limpiarHistorial();
   }
 }
+

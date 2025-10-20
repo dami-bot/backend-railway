@@ -6,9 +6,13 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ComprasService {
   constructor(private prisma: PrismaService) {}
 
-  async crearCompra(items: any[]) {
+  async crearCompra(items: any[], cliente?: string, numeroPedido?: string) {
     return this.prisma.purchase.create({
-      data: { items },
+      data: {
+        items,
+        cliente,
+        numeroPedido,
+      },
     });
   }
 
@@ -22,3 +26,4 @@ export class ComprasService {
     return this.prisma.purchase.deleteMany();
   }
 }
+

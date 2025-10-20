@@ -19,9 +19,11 @@ model Producto {
   ofertaDiaria Boolean    @default(false)
   vencimiento  DateTime?  // nullable
 }
-
 model Purchase {
-  id    Int      @id @default(autoincrement())
-  date  DateTime @default(now())
-  items Json
+  id            Int      @id @default(autoincrement())
+  date          DateTime @default(now())
+  items         Json
+  cliente       String?   // 👈 nuevo campo opcional
+  numeroPedido  String?   // 👈 nuevo campo opcional
 }
+
