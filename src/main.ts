@@ -6,7 +6,7 @@ async function bootstrap() {
   try {
     console.log('📦 Iniciando aplicación NestJS...');
     const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-      logger: ['error', 'warn', 'log'],
+      logger: ['error', 'warn', 'log','debug'],
     });
 
     const allowedOrigins = [

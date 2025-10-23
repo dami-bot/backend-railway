@@ -27,17 +27,14 @@ cloudinary.config({
 @Controller('api/productos')
 export class ProductosController {
   constructor(private readonly productosService: ProductosService) { }
-
-  @Get()
-  async findAll(
-    @Query('page') page: string = '1',
-    @Query('limit') limit: string = '20',
-  ) {
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-    const take = parseInt(limit);
-
-    return this.productosService.findAll({ skip, take });
-  }
+  
+@Get()
+findAll(@Query('skip') skip?: number, @Query('take') take?: number) {
+  return this.productosService.findAll({
+    skip: skip ? Number(skip) : undefined,
+    take: take ? Number(take) : undefined,
+  });
+}
 
 
  // CREAR PRODUCTO

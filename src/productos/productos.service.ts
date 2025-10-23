@@ -12,12 +12,12 @@ cloudinary.config({
 export class ProductosService {
   constructor(private prisma: PrismaService) { }
 
-  async findAll({ skip = 0, take = 20 }: { skip?: number; take?: number }) {
+  async findAll(params?: { skip?: number; take?: number }) {
     try {
       const productos = await this.prisma.producto.findMany({
-        skip,
-        take,
         orderBy: { id: 'desc' },
+        skip: params?.skip,
+        take: params?.take,
       });
 
       console.log(`📦 Productos encontrados (${productos.length}):`, productos);
