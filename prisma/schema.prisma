@@ -18,6 +18,7 @@ model Producto {
   actualizadoEn DateTime @updatedAt
   ofertaDiaria Boolean    @default(false)
   vencimiento  DateTime?  // nullable
+  categoria     String   @default("Almacén")
 }
 model Purchase {
   id            Int      @id @default(autoincrement())

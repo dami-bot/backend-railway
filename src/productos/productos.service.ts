@@ -78,6 +78,7 @@ export class ProductosService {
       descripcion: string;
       precio: number;
       stock: number;
+      categoria: string;
       ofertaDiaria: boolean;
       vencimiento: string | Date | null;
     }>,
