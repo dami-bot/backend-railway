@@ -27,97 +27,97 @@ cloudinary.config({
 @Controller('api/productos')
 export class ProductosController {
   constructor(private readonly productosService: ProductosService) { }
-  
-@Get()
-findAll(@Query('skip') skip?: number, @Query('take') take?: number) {
-  return this.productosService.findAll({
-    skip: skip ? Number(skip) : undefined,
-    take: take ? Number(take) : undefined,
-  });
-}
+
+  @Get()
+  findAll(@Query('skip') skip?: number, @Query('take') take?: number) {
+    return this.productosService.findAll({
+      skip: skip ? Number(skip) : undefined,
+      take: take ? Number(take) : undefined,
+    });
+  }
 
 
- // CREAR PRODUCTO
-@Post()
-@UseInterceptors(FileInterceptor('imagen'))
-async create(
-  @Body() data: {
-    nombre: string;
-    descripcion?: string;
-    precio: number;
-    stock: number;
-    ofertaDiaria?: boolean | string; // 👈 puede llegar como string
-    vencimiento?: string | null;
-  },
-  @UploadedFile() file?: Express.Multer.File,
-) {
-  try {
-    let uploadedImageUrl: string | undefined = undefined;
+  // CREAR PRODUCTO
+  @Post()
+  @UseInterceptors(FileInterceptor('imagen'))
+  async create(
+    @Body() data: {
+      nombre: string;
+      descripcion?: string;
+      precio: number;
+      stock: number;
+      ofertaDiaria?: boolean | string; // 👈 puede llegar como string
+      vencimiento?: string | null;
+    },
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    try {
+      let uploadedImageUrl: string | undefined = undefined;
 
-    if (file) {
-      const result = await new Promise<any>((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: 'productos' },
-          (error, result) => {
-            if (error) return reject(error);
-            resolve(result);
-          },
-        );
-        stream.end(file.buffer);
+      if (file) {
+        const result = await new Promise<any>((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: 'productos' },
+            (error, result) => {
+              if (error) return reject(error);
+              resolve(result);
+            },
+          );
+          stream.end(file.buffer);
+        });
+
+        uploadedImageUrl = result.secure_url;
+      }
+
+      return this.productosService.create({
+        nombre: data.nombre,
+        descripcion: data.descripcion,
+        precio: Number(data.precio),
+        stock: Number(data.stock),
+        // 👇 Conversión segura de ofertaDiaria
+        ofertaDiaria: data.ofertaDiaria === 'true' || data.ofertaDiaria === true,
+        vencimiento: data.vencimiento ? new Date(data.vencimiento) : null,
+        ...(uploadedImageUrl ? { imagenUrl: uploadedImageUrl } : {}),
       });
 
-      uploadedImageUrl = result.secure_url;
+    } catch (err) {
+      console.error('❌ Error en create producto:', err);
+      throw new InternalServerErrorException('No se pudo crear el producto');
+    }
+  }
+  // Actualizar precios por porcentaje
+  @Post('actualizar-precios')
+  async actualizarPrecios(
+    @Body() body: { ids: number[]; porcentaje: number }
+  ) {
+    const { ids, porcentaje } = body;
+
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      throw new BadRequestException('Debe seleccionar al menos un producto');
+    }
+    if (isNaN(porcentaje)) {
+      throw new BadRequestException('Porcentaje inválido');
     }
 
-    return this.productosService.create({
-      nombre: data.nombre,
-      descripcion: data.descripcion,
-      precio: Number(data.precio),
-      stock: Number(data.stock),
-      // 👇 Conversión segura de ofertaDiaria
-      ofertaDiaria: data.ofertaDiaria === 'true' || data.ofertaDiaria === true,
-      vencimiento: data.vencimiento ? new Date(data.vencimiento) : null,
-      ...(uploadedImageUrl ? { imagenUrl: uploadedImageUrl } : {}),
-    });
+    try {
+      const updates = await Promise.all(
+        ids.map(async (id) => {
+          // 🔹 Obtenemos el producto directamente desde Prisma
+          const producto = await this.productosService.findById(id);
+          if (!producto) return null;
 
-  } catch (err) {
-    console.error('❌ Error en create producto:', err);
-    throw new InternalServerErrorException('No se pudo crear el producto');
+          const nuevoPrecio = producto.precio * (1 + porcentaje / 100);
+
+          return this.productosService.update(id, { precio: Number(nuevoPrecio.toFixed(2)) });
+        })
+      );
+
+      return updates.filter(u => u !== null);
+    } catch (err) {
+      console.error(err);
+      throw new InternalServerErrorException('No se pudieron actualizar los precios');
+    }
   }
-}
-// Actualizar precios por porcentaje
-@Post('actualizar-precios')
-async actualizarPrecios(
-  @Body() body: { ids: number[]; porcentaje: number }
-) {
-  const { ids, porcentaje } = body;
-
-  if (!ids || !Array.isArray(ids) || ids.length === 0) {
-    throw new BadRequestException('Debe seleccionar al menos un producto');
-  }
-  if (isNaN(porcentaje)) {
-    throw new BadRequestException('Porcentaje inválido');
-  }
-
-  try {
-    const updates = await Promise.all(
-      ids.map(async (id) => {
-        // 🔹 Obtenemos el producto directamente desde Prisma
-        const producto = await this.productosService.findById(id);
-        if (!producto) return null;
-
-        const nuevoPrecio = producto.precio * (1 + porcentaje / 100);
-
-        return this.productosService.update(id, { precio: Number(nuevoPrecio.toFixed(2)) });
-      })
-    );
-
-    return updates.filter(u => u !== null);
-  } catch (err) {
-    console.error(err);
-    throw new InternalServerErrorException('No se pudieron actualizar los precios');
-  }
-}
 
 
 
@@ -194,5 +194,28 @@ async actualizarPrecios(
       throw new BadRequestException('Cantidad inválida');
     }
     return this.productosService.restarStock(Number(id), cantidad);
+  }
+  // NUEVO: PROCESAR VENTA DEL CARRITO COMPLETO
+  @Post('vender-carrito')
+  async venderCarrito(@Body() body: { items: { id: number; cantidad: number }[] }) {
+    const { items } = body;
+
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      throw new BadRequestException('El carrito está vacío');
+    }
+
+    try {
+      // Usamos un loop para ir restando stock de cada producto
+      const resultados = await Promise.all(
+        items.map(item =>
+          this.productosService.restarStock(Number(item.id), Number(item.cantidad))
+        )
+      );
+      return { message: 'Stock actualizado', productos: resultados.length };
+    } catch (err) {
+      console.error('❌ Error en venta masiva:', err);
+      // Si el service tira "Stock insuficiente", NestJS lo captura y envía el error al front
+      throw new BadRequestException(err.message || 'Error al procesar la venta');
+    }
   }
 }
