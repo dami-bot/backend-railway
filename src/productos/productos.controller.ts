@@ -200,21 +200,20 @@ export class ProductosController {
   async venderCarrito(@Body() body: { items: { id: number; cantidad: number }[] }) {
     const { items } = body;
 
-    if (!items || !Array.isArray(items) || items.length === 0) {
+    if (!items || items.length === 0) {
       throw new BadRequestException('El carrito está vacío');
     }
 
     try {
-      // Usamos un loop para ir restando stock de cada producto
-      const resultados = await Promise.all(
-        items.map(item =>
-          this.productosService.restarStock(Number(item.id), Number(item.cantidad))
-        )
-      );
-      return { message: 'Stock actualizado', productos: resultados.length };
+      // Usamos un for...of en lugar de Promise.all para procesar uno por uno 
+      // y evitar saturar la base de datos de una sola vez
+      for (const item of items) {
+        await this.productosService.restarStock(Number(item.id), Number(item.cantidad));
+      }
+
+      return { success: true };
     } catch (err) {
-      console.error('❌ Error en venta masiva:', err);
-      // Si el service tira "Stock insuficiente", NestJS lo captura y envía el error al front
+      // Solo un log en caso de error real
       throw new BadRequestException(err.message || 'Error al procesar la venta');
     }
   }
