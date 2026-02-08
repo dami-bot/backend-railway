@@ -29,11 +29,18 @@ export class MarketplaceService {
       },
     });
   }
+  async reactivarProducto(id: number) {
+  return this.prisma.marketplaceItem.update({
+    where: { id },
+    data: { estado: 'disponible' }, // Lo volvemos a poner disponible
+  });
+}
   async remove(id: number) {
     return this.prisma.marketplaceItem.delete({
       where: { id },
     });
   }
+ 
 
   async findAll() {
     return this.prisma.marketplaceItem.findMany({
