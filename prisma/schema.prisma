@@ -20,6 +20,23 @@ model Producto {
   vencimiento  DateTime?  // nullable
   categoria     String   @default("Almacén")
 }
+
+model MarketplaceItem {
+  id               Int      @id @default(autoincrement())
+  nombre           String
+  descripcion      String?
+  precioBase       Float    // Lo que el vendedor pide
+  precioFinal      Float    // Precio con el 10% ya sumado
+  comisionMonto    Float    // El valor del 10% calculado
+  stock            Int      @default(1)
+  imagen           String
+  categoria        String   // Ropa, Celulares, etc.
+  vendedorNombre   String
+  vendedorTelefono String   // Formato: 54911...
+  estado           String   @default("disponible") // disponible / vendido
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
 model Purchase {
   id            Int      @id @default(autoincrement())
   numeroPedido  Int
