@@ -1,5 +1,4 @@
-import { Param } from '@nestjs/common';
-import { Controller, Get, Post, Body, Delete, Patch } from '@nestjs/common';
+import { Param, Controller, Get, Post, Body, Delete, Patch } from '@nestjs/common';
 import { MarketplaceService } from './marketplace.service';
 
 @Controller('marketplace')
@@ -8,11 +7,16 @@ export class MarketplaceController {
 
   @Post()
   create(@Body() createDto: any) {
-    // Aquí es donde recibimos el nombre, precioBase, vendedor, etc.
     return this.marketplaceService.create(createDto);
   }
-  // marketplace.controller.ts
-  @Patch(':id/vender') // Usamos PATCH porque solo actualizamos un pedacito del objeto
+
+  // 🚀 AGREGAMOS ESTO: Es la ruta que le faltaba a tu formulario para Editar
+  @Patch(':id') 
+  update(@Param('id') id: string, @Body() updateDto: any) {
+    return this.marketplaceService.update(+id, updateDto);
+  }
+
+  @Patch(':id/vender')
   vender(@Param('id') id: string) {
     return this.marketplaceService.markAsSold(+id);
   }
@@ -31,5 +35,4 @@ export class MarketplaceController {
   remove(@Param('id') id: string) {
     return this.marketplaceService.remove(+id);
   }
-
 }

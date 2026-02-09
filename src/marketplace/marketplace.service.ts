@@ -40,7 +40,36 @@ export class MarketplaceService {
       where: { id },
     });
   }
- 
+
+  // marketplace.service.ts
+
+// Reemplaza tu método update por este:
+async update(id: number, data: any) {
+  const precioBase = data.precioBase ? Number(data.precioBase) : undefined;
+  let updateData = { ...data };
+
+  // Si el precioBase cambió, recalculamos comision y precio final
+  if (precioBase !== undefined) {
+    const porcentajeComision = 0.10;
+    const comisionMonto = precioBase * porcentajeComision;
+    const precioFinal = precioBase + comisionMonto;
+    
+    updateData = {
+      ...updateData,
+      precioBase: precioBase,
+      precioFinal: precioFinal,
+      comisionMonto: comisionMonto,
+    };
+  }
+
+  // Convertimos stock a número si viene en el data
+  if (data.stock) updateData.stock = Number(data.stock);
+
+  return this.prisma.marketplaceItem.update({
+    where: { id: Number(id) },
+    data: updateData,
+  });
+}
 
   async findAll() {
     return this.prisma.marketplaceItem.findMany({
